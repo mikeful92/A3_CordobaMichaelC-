@@ -62,35 +62,31 @@ namespace A3_CordobaMichael
             else{
                 status = "Checked-out to Customer " + c.Id;
             }
-            string s = String.Format("{0}\t{1}\t\t{2}\t\t{3}", catalogNumber ,title,authors,status);
+            string s = String.Format("{0,-8}{1, -20}{2, -20}{3}", catalogNumber ,title,authors,status);
 
             return s;
         }
 
         public bool CheckOut(Customer c)
         {
-            bool status;
             if(this.c == null){
                 this.c = c;
-                status = true;
+                return true;
             }
             else{
-                status = false;
+                return false;
             }
-            return status;
         }
 
         public bool CheckIn()
         {
-            bool status;
             if(c != null){
                 c = null;
-                status = true;
+                return true;
             }
             else{
-                status = false;
+                return false;
             }
-            return status;
         }
 
     }
