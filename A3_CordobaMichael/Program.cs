@@ -30,6 +30,7 @@ namespace A3_CordobaMichael
         public string ToString()
         {
             return String.Format("{0,-5}{1,-10}", id, name);
+
         }
     }
 
@@ -40,7 +41,10 @@ namespace A3_CordobaMichael
         private string authors;
         Customer c;
 
-        public int CatalogNumber { get; }
+        public int CatalogNumber 
+        {
+            get { return catalogNumber; }
+        }
 
         public Book(string title, string authors, int catalogNumber)
         {
@@ -51,22 +55,41 @@ namespace A3_CordobaMichael
 
         public string ToString()
         {
-            string s = String.Format(catalogNumber + " " + title + " " + authors + " ");
+            string status;
+            if(c == null){
+                status = "Available";
+            }
+            else{
+                status = "Checked-out to Customer " + c.Id;
+            }
+            string s = String.Format("{0}\t{1}\t\t{2}\t\t{3}", catalogNumber ,title,authors,status);
 
             return s;
         }
 
         public bool CheckOut(Customer c)
         {
-            bool status = false;
-
+            bool status;
+            if(this.c == null){
+                this.c = c;
+                status = true;
+            }
+            else{
+                status = false;
+            }
             return status;
         }
 
         public bool CheckIn()
         {
-            bool status = false;
-
+            bool status;
+            if(c != null){
+                c = null;
+                status = true;
+            }
+            else{
+                status = false;
+            }
             return status;
         }
 
@@ -76,23 +99,44 @@ namespace A3_CordobaMichael
     {
         private Customer[] customerArray = new Customer[5];
         private Book[] bookArray = new Book[5];
+        private int customerIdCounter = 1;
+        private int bookIdCounter = 1;
 
         public bool AddNewCustomer(string customerName)
         {
-
-            return false;
+            if(customerIdCounter <= customerArray.Length){
+                customerArray[customerIdCounter-1] = new Customer(customerName, customerIdCounter);
+                customerIdCounter++;
+                return true;
+            }
+            else{
+                return false;
+            }
         }
 
         public bool AddNewBook(string bookTitle, string bookAuthor)
         {
-
-            return false;
+            if(bookIdCounter <= bookArray.Length){
+                bookArray[bookIdCounter - 1] = new Book(bookTitle, bookAuthor, bookIdCounter+100);
+                bookIdCounter++;
+                return true;
+            }
+            else{
+                return false;
+            }            
         }
 
         public string ToString()
         {
-            string s = String.Format("Hello World");
-
+            string s = "";
+            for(int i = 1; i < customerIdCounter; i++){
+                s = s + customerArray[i-1].ToString() + "\n";
+            }
+            s = s + "\n";
+            for (int i = 1; i  < bookIdCounter; i++)
+            {
+                s = s + bookArray[i-1].ToString() + "\n";
+            }
             return s;
         }
     }
