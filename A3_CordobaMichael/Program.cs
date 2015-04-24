@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace A3_CordobaMichael
 {
+    interface IRenewable
+    {
+        bool Renew();
+    }
+
+
     class Customer
     {
         private int id;
@@ -34,12 +40,13 @@ namespace A3_CordobaMichael
         }
     }
 
-    class Book
+    abstract class Book
     {
-        private int catalogNumber;
-        private string title;
-        private string authors;
-        Customer c;
+        protected int catalogNumber;
+        protected string title;
+        protected string authors;
+        protected DateTime dueDate;
+        protected Customer c;
 
         public int CatalogNumber 
         {
@@ -53,14 +60,14 @@ namespace A3_CordobaMichael
             this.catalogNumber = catalogNumber;
         }
 
-        public string ToString()
+        public virtual string ToString()
         {
             string status;
             if(c == null){
                 status = "Available";
             }
             else{
-                status = "Checked-out to Customer " + c.Id;
+                status = "Checked out to Customer " + c.Id + "Due on " + dueDate.ToString();
             }
             string s = String.Format("{0,-8}{1, -20}{2, -20}{3}", catalogNumber ,title,authors,status);
 
@@ -71,6 +78,7 @@ namespace A3_CordobaMichael
         {
             if(this.c == null){
                 this.c = c;
+                this.dueDate = findDueDate();
                 return true;
             }
             else{
@@ -89,6 +97,59 @@ namespace A3_CordobaMichael
             }
         }
 
+        public abstract DateTime findDueDate();
+    }
+
+    class TextBook : Book, IRenewable
+    {
+        private int edition;
+        public TextBook(string title, string authors, int catalogNumber, int edition) : base(title, authors, catalogNumber)
+        {
+            this.edition = edition;
+        }
+        public override DateTime findDueDate()
+        {
+            DateTime due = DateTime.Now.AddDays(30);
+            return due;
+        }
+        public override string ToString()
+        {
+            string status;
+            if (c == null)
+            {
+                status = "Available";
+            }
+            else
+            {
+                status = "Checked out to Customer " + c.Id + "Due on " + dueDate.ToString();
+            }
+            string s = String.Format("{0,-8}{1, -20}{2, -20}{3} Edition: {4}", catalogNumber, title, authors, status, edition);
+
+            return s;
+        }
+
+        public bool Renew()
+        {
+            if (c == null)
+            {
+                return false;
+            }
+            else
+            {
+                dueDate = dueDate.AddDays(15);
+                return true;
+            }
+        }
+    }
+
+    class GeneralBook : Book
+    {
+        public GeneralBook(string title, string authors, int catalogNumber) : base(title, authors, catalogNumber) { }
+        public override DateTime findDueDate()
+        {
+            DateTime due = DateTime.Now.AddDays(7);
+            return due;
+        }
     }
 
     class Library
@@ -113,13 +174,79 @@ namespace A3_CordobaMichael
         public bool AddNewBook(string bookTitle, string bookAuthor)
         {
             if(bookIdCounter <= bookArray.Length){
-                bookArray[bookIdCounter - 1] = new Book(bookTitle, bookAuthor, bookIdCounter+100);
+                bookArray[bookIdCounter - 1] = new GeneralBook(bookTitle, bookAuthor, bookIdCounter+100);
                 bookIdCounter++;
                 return true;
             }
             else{
                 return false;
             }            
+        }
+
+        public bool AddNewBook(string bookTitle, string bookAuthor, int edition)
+        {
+            if (bookIdCounter <= bookArray.Length)
+            {
+                bookArray[bookIdCounter - 1] = new TextBook(bookTitle, bookAuthor, bookIdCounter + 100, edition);
+                bookIdCounter++;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool IssueBook(int custId, int bookCatalogNum)
+        {
+            if (bookArray[bookCatalogNum - 101] != null)
+            {
+                if (customerArray[custId - 1] != null)
+                {
+                    return bookArray[bookCatalogNum - 101].CheckOut(customerArray[custId - 1]);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ReturnBook(int bookCatalogNum)
+        {
+            for (int i = 0; i < bookArray.Length; i++)
+            {
+                if (bookArray[i] != null)
+                {
+                    if (bookArray[i].CatalogNumber == bookCatalogNum)
+                    {
+                        return bookArray[i].CheckIn();
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool RenewBook(int bookCatalogNum)
+        {
+            for (int i = 0; i < bookArray.Length; i++)
+            {
+                if (bookArray[i] != null)
+                {
+                    if (bookArray[i].CatalogNumber == bookCatalogNum)
+                    {
+                        if (bookArray[i] is IRenewable)
+                        {
+                            return true;
+                        }
+                    }
+                }       
+            }
+            return false;
         }
 
         public string ToString()
@@ -141,40 +268,6 @@ namespace A3_CordobaMichael
     {
         static void Main(string[] args)
         {
-            Customer c1 = new Customer("Tom", 1);
-            Customer c2 = new Customer("Mary", 2);
-
-            Book b1 = new Book("Java by Example", "Deitel", 1);
-            Book b2 = new Book("C# by Example", "Murach", 2);
-
-            Console.WriteLine("-------Testing ToString()-------------\n");
-            Console.WriteLine(c1.ToString());
-            Console.WriteLine(c2.ToString());
-            Console.WriteLine();
-            Console.WriteLine(b1.ToString());
-            Console.WriteLine(b2.ToString());
-            Console.WriteLine();
-
-            Console.WriteLine("-------Testing CheckOut()-------------\n");
-            Console.WriteLine("b1.CheckOut(c1): " + b1.CheckOut(c1));
-            Console.WriteLine("b1.CheckOut(c2): " + b1.CheckOut(c2));
-            Console.WriteLine();
-
-            Console.WriteLine(b1.ToString());
-            Console.WriteLine(b2.ToString());
-            Console.WriteLine();
-
-            Console.WriteLine("-------Testing CheckIn()-------------\n");
-            Console.WriteLine("b1.CheckIn: " + b1.CheckIn());
-            Console.WriteLine("b2.CheckIn: " + b2.CheckIn());
-            Console.WriteLine();
-
-
-            Console.WriteLine(b1.ToString());
-            Console.WriteLine(b2.ToString());
-            Console.WriteLine();
-
-            Console.WriteLine("-------Testing AddNewCustomer()-------------\n");
             Library library = new Library();
 
             Console.WriteLine("Add Customer Fred: " + library.AddNewCustomer("Fred"));
@@ -182,36 +275,46 @@ namespace A3_CordobaMichael
             Console.WriteLine("Add Customer Kyle: " + library.AddNewCustomer("Kyle"));
             Console.WriteLine();
 
-            Console.WriteLine("-------Testing AddNewBook()-------------\n");
-            Console.WriteLine("Add Book Learning C#: " + library.AddNewBook("Learning C#", "Liberty"));
-            Console.WriteLine("Add Book Introduction to C#: " + library.AddNewBook("Introduction to C#", "Deitel"));
-            Console.WriteLine("Add Book Advanced C#: " + library.AddNewBook("Advanced C#", "Murach"));
+            Console.WriteLine("Add Book Learning C#: " + library.AddNewBook("Learning C#", "Liberty", 2));
+            Console.WriteLine("Add Book Introduction to C#: " + library.AddNewBook("Introduction to C#", "Deitel", 1));
+            Console.WriteLine("Add Book Harry Potter: " + library.AddNewBook("Harry Potter", "Rowling"));
+            Console.WriteLine("Add Book Advanced C#: " + library.AddNewBook("Advanced C#", "Murach", 4));
             Console.WriteLine();
 
-            Console.WriteLine("-------Testing Library.ToString()-------------\n");
             Console.WriteLine(library.ToString());
 
-            Console.WriteLine("-------Testing AddNewCustomer()-------------\n");
-            Library library1 = new Library();
-            Console.WriteLine("Add Customer C1: " + library1.AddNewCustomer("C1"));
-            Console.WriteLine("Add Customer C2: " + library1.AddNewCustomer("C2"));
-            Console.WriteLine("Add Customer C3: " + library1.AddNewCustomer("C3"));
-            Console.WriteLine("Add Customer C4: " + library1.AddNewCustomer("C4"));
-            Console.WriteLine("Add Customer C5: " + library1.AddNewCustomer("C5"));
-            Console.WriteLine("Add Customer C6: " + library1.AddNewCustomer("C6"));
+            Console.WriteLine("Issuing Books...");
+            Console.WriteLine("library.IssueBook(2, 101): " + library.IssueBook(2, 101));
+            Console.WriteLine("library.IssueBook(1, 103): " + library.IssueBook(1, 103));
+            Console.WriteLine("library.IssueBook(3, 101): " + library.IssueBook(3, 101));
+            Console.WriteLine("library.IssueBook(1, 104): " + library.IssueBook(1, 104));
+            Console.WriteLine("library.IssueBook(4, 102): " + library.IssueBook(4, 102));
+            Console.WriteLine("library.IssueBook(2, 105): " + library.IssueBook(2, 105));
+
+            Console.WriteLine();
+            Console.WriteLine(library.ToString());
+
+            Console.WriteLine("Renewing Books...");
+            Console.WriteLine("library.RenewBook(101): " + library.RenewBook(101));
+            Console.WriteLine("library.RenewBook(102): " + library.RenewBook(102));
+            Console.WriteLine("library.RenewBook(103): " + library.RenewBook(103));
+            Console.WriteLine("library.ReturnBook(106): " + library.ReturnBook(106));
+            Console.WriteLine();
+            Console.WriteLine(library.ToString());
+
+            Console.WriteLine("Returning Books...");
+            Console.WriteLine("library.ReturnBook(103): " + library.ReturnBook(103));
+            Console.WriteLine("library.ReturnBook(103): " + library.ReturnBook(103));
+            Console.WriteLine("library.ReturnBook(102): " + library.ReturnBook(102));
+            Console.WriteLine("library.ReturnBook(105): " + library.ReturnBook(105));
             Console.WriteLine();
 
-            Console.WriteLine("-------Testing AddNewCustomer()-------------\n");
-            Console.WriteLine("Add Book B1: " + library1.AddNewBook("B1", "A1"));
-            Console.WriteLine("Add Book B2: " + library1.AddNewBook("B2", "A1"));
-            Console.WriteLine("Add Book B3: " + library1.AddNewBook("B3", "A1"));
-            Console.WriteLine("Add Book B4: " + library1.AddNewBook("B4", "A1"));
-            Console.WriteLine("Add Book B5: " + library1.AddNewBook("B5", "A1"));
-            Console.WriteLine("Add Book B6: " + library1.AddNewBook("B6", "A1"));
-            Console.WriteLine();
+
+            Console.WriteLine(library.ToString());
 
 
             Console.ReadLine();
+
 
         }
 
