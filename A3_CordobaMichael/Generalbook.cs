@@ -14,5 +14,9 @@ namespace A3_CordobaMichael
             DateTime due = DateTime.Now.AddDays(7);
             return due;
         }
+        public override bool Renew()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace A3_CordobaMichael
     class Library
     {
         private Customer[] customerArray = new Customer[5];
-        public Book[] bookArray = new Book[5];
+        private Book[] bookArray = new Book[5];
         private int customerIdCounter = 1;
         private int bookIdCounter = 1;
 
@@ -99,8 +99,7 @@ namespace A3_CordobaMichael
                     {
                         if (bookArray[i] is IRenewable)
                         {
-                            Console.WriteLine(bookArray[i] is Book);
-                            return true;
+                            return bookArray[i].Renew();
                         }
                     }
                 }

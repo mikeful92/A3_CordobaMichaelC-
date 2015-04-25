@@ -35,7 +35,7 @@ namespace A3_CordobaMichael
             return s;
         }
 
-        public bool Renew()
+        public override bool Renew()
         {
             if (c == null)
             {

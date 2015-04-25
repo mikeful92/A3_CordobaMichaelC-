@@ -70,5 +70,6 @@ namespace A3_CordobaMichael
         }
 
         public abstract DateTime findDueDate();
+        //public abstract bool Renew();
     }
 }
