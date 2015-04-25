@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace A3_CordobaMichael
+namespace A4_CordobaMichael
 {
     class TextBook : Book, IRenewable
     {
@@ -35,7 +35,7 @@ namespace A3_CordobaMichael
             return s;
         }
 
-        public override bool Renew()
+        public bool Renew()
         {
             if (c == null)
             {

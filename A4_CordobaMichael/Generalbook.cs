@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace A3_CordobaMichael
+namespace A4_CordobaMichael
 {
     class GeneralBook : Book
     {
@@ -13,10 +13,6 @@ namespace A3_CordobaMichael
         {
             DateTime due = DateTime.Now.AddDays(7);
             return due;
-        }
-        public override bool Renew()
-        {
-            throw new NotImplementedException();
         }
     }
 }

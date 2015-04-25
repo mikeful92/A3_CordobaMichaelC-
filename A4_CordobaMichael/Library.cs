@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace A3_CordobaMichael
+namespace A4_CordobaMichael
 {
     class Library
     {
@@ -99,7 +99,7 @@ namespace A3_CordobaMichael
                     {
                         if (bookArray[i] is IRenewable)
                         {
-                            return bookArray[i].Renew();
+                            return ((IRenewable)bookArray[i]).Renew();
                         }
                     }
                 }
